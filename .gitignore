@@ -26,3 +26,8 @@
 *.exe
 *.out
 *.app
+
+# IDEs
+*.user  # Qt Creator
+*.kdev4 # KDevelop
+*.idea  # Clion
