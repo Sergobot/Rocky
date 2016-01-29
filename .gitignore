@@ -30,6 +30,12 @@ build/
 *.out
 *.app
 
+# Patches 
+*.patch
+*.diff
+*.orig
+*.rej
+
 # IDEs
 *.user  # Qt Creator
 *.kdev4 # KDevelop
