@@ -18,4 +18,4 @@ before_script:
 script:
 - make
 after_success:
-- coveralls --gcov-options '\-lp'
+- coveralls --exclude build --gcov-options '\-lp'
