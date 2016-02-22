@@ -3,6 +3,13 @@ engines:
     enabled: true
   govet:
     enabled: true
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - FIXME
+      - BUG
+      - TODO
 ratings:
   paths:
   - core/**
