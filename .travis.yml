@@ -8,4 +8,4 @@ before_script:
 - mkdir build
 - cd build
 script:
-- echo "UPDATE .travis.yml"
+- go build core/game.go
