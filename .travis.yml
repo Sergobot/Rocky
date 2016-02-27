@@ -8,4 +8,4 @@ before_script:
 - mkdir build
 - cd build
 script:
-- go build core/game.go
+- go build ../src/core/game/game.go
