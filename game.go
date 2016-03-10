@@ -1,7 +1,7 @@
 // Copyright (c) Sergey Popov <sergobot@protonmail.com>
 // See LICENSE for details.
 
-package game
+package rocky
 
 import "fmt"
 
