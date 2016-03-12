@@ -1,4 +1,6 @@
 engines:
+  gofmt:
+    enabled: true
   golint:
     enabled: true
   govet:
@@ -12,5 +14,4 @@ engines:
       - TODO
 ratings:
   paths:
-  - core/**
   - "**.go"
