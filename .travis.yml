@@ -1,8 +1,13 @@
 language: go
+addons:
+  apt_packages:
+    - libgl1-mesa-dev
+    - xorg-dev
+sudo: false
 go:
 - tip
 addons:
     code_climate:
         repo_token: f40020d784d363f5316dc7fd7eb7032d561a427e791744ccad8a0ad39c0edb1e
 script:
-- go build game.go
+- go build *.go
