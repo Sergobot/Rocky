@@ -11,8 +11,10 @@ import (
     "github.com/go-gl/glfw/v3.1/glfw"
 )
 
-// Main Window's struct
-// Manages the window and OpenGL context in it
+// Window represents a wrapper of GLWF window to make it even easier to use
+// Main functions:
+// - Manage the window and OpenGL context in it
+// - Nothing more for now
 type Window struct {
     // Basic window's parametres
     width, height int
@@ -32,9 +34,10 @@ func init() {
 
 // Init initializes or clears Window w
 func (w *Window) Init() *Window {
+    // width, height, xPos and yPos are 0 by default, so we set our own defaults
     *w = Window {
-        width: 0,
-        height: 0,
+        width: 800,
+        height: 600,
 
         xPos: 0,
         yPos: 0,
@@ -78,7 +81,7 @@ func (w *Window) Init() *Window {
 // New returns an initialized window
 func New() *Window { return new(Window).Init() }
 
-// Updates all the window contents: redraws widgets, models, etc.
+// Update method updates all the window contents: redraws widgets, models, etc.
 func (w *Window) Update() {
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     
@@ -90,13 +93,13 @@ func (w *Window) Update() {
     glfw.PollEvents()
 }
 
-// Resizes the window
+// Resize method resizes the window
 func (w *Window) Resize(width, height int) {
     w.width, w.height = width, height
     w.window.SetSize(width, height)
 }
 
-// Returns true if window is going to be closed
+// ShouldClose returns true if window is going to be closed
 func (w *Window) ShouldClose() bool {
     return w.window.ShouldClose()
 }
