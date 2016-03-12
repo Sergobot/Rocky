@@ -3,7 +3,7 @@ addons:
   apt_packages:
     - libgl1-mesa-dev
     - xorg-dev
-    - libxxf86vm1 # "/usr/bin/ld: cannot find -lXxf86vm" without this lib
+    - libxxf86vm-dev # "/usr/bin/ld: cannot find -lXxf86vm" without this lib
 sudo: false
 go:
 - tip
