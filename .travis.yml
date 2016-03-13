@@ -9,7 +9,7 @@ go:
 addons:
     code_climate:
         repo_token: f40020d784d363f5316dc7fd7eb7032d561a427e791744ccad8a0ad39c0edb1e
-before_script:
+install:
 - go get -u github.com/go-gl/glfw/v3.1/glfw
 - go get -u github.com/go-gl/gl
 script:
