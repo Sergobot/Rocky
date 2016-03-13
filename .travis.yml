@@ -2,8 +2,8 @@ language: go
 addons:
   apt:
     packages:
-      - libgl1-mesa-dev
-      - xorg-dev
+    - libgl1-mesa-dev
+    - xorg-dev
 sudo: false
 go:
 - tip
