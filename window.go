@@ -22,9 +22,7 @@ type Window struct {
     title string
 
     // GLFW window, controlled by this struct
-    window glfw.Window
-    // Is true only if GLFW is already initialized
-    initialized bool
+    window *glfw.Window
 }
 
 func init() {
@@ -34,39 +32,44 @@ func init() {
 
 // Init initializes or clears Window w
 func (w *Window) Init() *Window {
-    // width, height, xPos and yPos are 0 by default, so we set our own defaults
+    // width and height are 0 by default, so we set our own defaults
     *w = Window {
         width: 800,
         height: 600,
 
-        xPos: 0,
-        yPos: 0,
-
         title : "Rocky",
     }
-    
+
+	return w
+}
+
+// New returns an initialized window
+func New() *Window { return new(Window).Init() }
+
+// initGLFW initializes GLFW to create a GLFW window later
+func (w *Window) initGLFW() {
     if err := glfw.Init(); err != nil {
 		log.Fatalln("Failed to initialize GLFW:", err)
 	}
-	w.initialized = true
 
-	glfw.WindowHint(glfw.ContextVersionMajor, 3)
+    // Set some necessary window properties
+    // Rocky uses OpenGL 3.3 Core profile
+    glfw.WindowHint(glfw.ContextVersionMajor, 3) 
 	glfw.WindowHint(glfw.ContextVersionMinor, 3)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+    
+    // Rocky windows aren't resizeable by user: usually that's not needed in a game
 	glfw.WindowHint(glfw.Resizable, glfw.False)
+}
 
-	window, err := glfw.CreateWindow(w.width, w.height, w.title, nil, nil)
-	if err != nil {
-	    log.Fatalln("Failed to create GLFW window:", err)
-	}
-	window.MakeContextCurrent()
-	
-	// Initialize Glow
+// initGL initializes OpenGL context
+func (w *Window) initGL() {
+    // Initialize Glow
 	if err := gl.Init(); err != nil {
 		log.Fatalln("Failed to initialize OpenGL:", err)
 	}
-	
+
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("Using OpenGL", version)
 	
@@ -74,20 +77,33 @@ func (w *Window) Init() *Window {
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
-	
-	return w
 }
 
-// New returns an initialized window
-func New() *Window { return new(Window).Init() }
+// Show method shows the window
+func (w *Window) Show() {
+	// First we initialize GLFW
+    // Then we create a window
+    // And only after that initialize OpenGL context
+    w.initGLFW()
+    defer w.initGL()
+
+	window, err := glfw.CreateWindow(w.width, w.height, w.title, nil, nil)
+	if err != nil {
+	    log.Fatalln("Failed to create GLFW window:", err)
+	}
+	window.MakeContextCurrent()
+    
+    // After creating a GLFW window we set w.window to it
+    w.window = window
+}
 
 // Update method updates all the window contents: redraws widgets, models, etc.
 func (w *Window) Update() {
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     
     // TODO:
-    // Add support for widgets
-    // Add support for FPS counting
+    // - Add support for widgets
+    // - Add support for FPS counting
     
     w.window.SwapBuffers()
     glfw.PollEvents()
