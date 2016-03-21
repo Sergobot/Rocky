@@ -11,6 +11,18 @@ import (
     "github.com/go-gl/glfw/v3.1/glfw"
 )
 
+// Use custom type to store window's state
+type winState int
+const (
+    winClosed winState = iota
+    winHidden winState = iota
+    winShown winState = iota
+)
+
+// Keep GLFW and GL from re-initializing
+var glfwInitialized bool
+var glInitialized bool
+
 // Window represents a wrapper of GLWF window to make it even easier to use
 // Main functions:
 // - Manage the window and OpenGL context in it
@@ -23,11 +35,17 @@ type Window struct {
 
     // GLFW window, controlled by this struct
     window *glfw.Window
+    
+    // Current state of the window. By default it is 'closed'
+    state winState
 }
 
 func init() {
     // GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
+    
+    glfwInitialized = false
+    glInitialized = false
 }
 
 // Init initializes or clears Window w
@@ -48,9 +66,17 @@ func New() *Window { return new(Window).Init() }
 
 // initGLFW initializes GLFW to create a GLFW window later
 func (w *Window) initGLFW() {
+    // If GLFW is already initialized, don't re-init it
+    if glfwInitialized {
+        log.Println("Prevent GLFW from re-initializing")
+        return
+    }
+    
+    // Initialize GLFW
     if err := glfw.Init(); err != nil {
 		log.Fatalln("Failed to initialize GLFW:", err)
 	}
+    glfwInitialized = true
 
     // Set some necessary window properties
     // Rocky uses OpenGL 3.3 Core profile
@@ -65,10 +91,17 @@ func (w *Window) initGLFW() {
 
 // initGL initializes OpenGL context
 func (w *Window) initGL() {
-    // Initialize Glow
+    // If OpenGL is already initialized, don't re-init it
+    if glInitialized {
+        log.Println("Prevent OpenGL from re-initializing")
+        return
+    }
+    
+    // Initialize OpenGL
 	if err := gl.Init(); err != nil {
 		log.Fatalln("Failed to initialize OpenGL:", err)
 	}
+    glInitialized = true
 
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("Using OpenGL", version)
@@ -81,9 +114,17 @@ func (w *Window) initGL() {
 
 // Show method shows the window
 func (w *Window) Show() {
-	// First we initialize GLFW
+	if w.state == winHidden {
+        w.window.Show()
+        return
+    } else if w.state == winShown {
+        log.Println("Prevented re-showing a window")        
+        return
+    }
+    
+    // First we initialize GLFW
     // Then we create a window
-    // And only after that initialize OpenGL context
+    // And only after that we initialize OpenGL context
     w.initGLFW()
     defer w.initGL()
 
@@ -95,6 +136,50 @@ func (w *Window) Show() {
     
     // After creating a GLFW window we set w.window to it
     w.window = window
+}
+
+// Close closes the window and terminates GLFW.
+func (w *Window) Close() {
+    // glfw.Terminate does all the work: it also closes all the remaining windows
+    glfw.Terminate()
+    w.state = winClosed
+    glfwInitialized, glInitialized = false, false
+}
+
+// Hide hides the window: it becomes invisible but still exists
+func (w *Window) Hide() {
+    if glfwInitialized && w.state != winClosed {
+        if w.state != winHidden {
+            w.window.Hide()
+            w.state = winHidden
+        } else {
+            log.Println("Prevented re-hiding a window")
+        }
+    } else {
+        log.Println("Prevented hiding window, when GLFW isn't initialized")
+    }
+}
+
+// Move moves the window on the screen
+func (w *Window) Move(x, y int) {
+    if glfwInitialized && w.state != winClosed {
+        w.window.SetPos(x, y)
+    } else {
+        log.Println("Prevented moving a window, when GLFW isn't initialized")
+    }
+    // Even if the window isn't moved, we save new parameters to set them when showing the window again
+    w.xPos, w.yPos = x, y
+}
+
+// Resize method resizes the window
+func (w *Window) Resize(width, height int) {
+    if glfwInitialized && w.state != winClosed {
+        w.window.SetSize(width, height)
+    } else {
+        log.Println("Prevented moving a window, when GLFW isn't initialized")
+    }
+    // Even if the window isn't resized, we save new parameters to set them when showing the window again
+    w.width, w.height = width, height
 }
 
 // Update method updates all the window contents: redraws widgets, models, etc.
@@ -109,13 +194,12 @@ func (w *Window) Update() {
     glfw.PollEvents()
 }
 
-// Resize method resizes the window
-func (w *Window) Resize(width, height int) {
-    w.width, w.height = width, height
-    w.window.SetSize(width, height)
-}
-
 // ShouldClose returns true if window is going to be closed
 func (w *Window) ShouldClose() bool {
-    return w.window.ShouldClose()
+    if glfwInitialized {
+        return w.window.ShouldClose()
+    } else {
+        // If the window doesn't exist, we need to stop drawing
+        return false
+    }
 }
