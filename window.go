@@ -62,7 +62,7 @@ func (w *Window) Init() *Window {
 }
 
 // New returns an initialized window
-func New() *Window { return new(Window).Init() }
+func NewWindow() *Window { return new(Window).Init() }
 
 // initGLFW initializes GLFW to create a GLFW window later
 func (w *Window) initGLFW() {
