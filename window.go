@@ -208,10 +208,9 @@ func (w *Window) Update() {
 
 // ShouldClose returns true if window is going to be closed.
 func (w *Window) ShouldClose() bool {
-    if glfwInitialized {
-        return w.window.ShouldClose()
-    } else {
+    if !glfwInitialized {
         // If the window doesn't exist, we need to stop drawing
         return false
-    }
+    }        
+    return w.window.ShouldClose()
 }
