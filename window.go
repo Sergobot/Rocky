@@ -38,6 +38,9 @@ type Window struct {
     
     // Current state of the window. By default it is 'closed'
     state winState
+    
+    // Slice of widgets is used to store them and to draw their contents in Update()
+    widgets [] *Widget
 }
 
 func init() {
@@ -194,12 +197,22 @@ func (w *Window) Size() (int, int) {
     return w.width, w.height
 }
 
+// AddWidget adds a widget to the window. That means that on each
+// call of w.Update() widget.Draw() will be called
+func (w *Window) AddWidget(widget *Widget) {
+    widget.GetReady()
+    w.widgets = append(w.widgets, widget)
+}
+
 // Update method updates all the window contents: redraws widgets, models, etc.
 func (w *Window) Update() {
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     
+    for _, v = range w.widgets {
+        v.Draw()
+    }
+    
     // TODO:
-    // - Add support for widgets
     // - Add support for FPS counting
     
     w.window.SwapBuffers()
