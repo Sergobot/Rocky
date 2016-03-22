@@ -173,6 +173,10 @@ func (w *Window) SetPosition(x, y int) {
     w.xPos, w.yPos = x, y
 }
 
+func (w *Window) Position() (int, int) {
+    return w.height, w.width
+}
+
 // SetSize method resizes the window.
 func (w *Window) SetSize(width, height int) {
     if glfwInitialized && w.state != winClosed {
@@ -182,6 +186,10 @@ func (w *Window) SetSize(width, height int) {
     }
     // Even if the window isn't resized, we save new parameters to set them when showing the window again
     w.width, w.height = width, height
+}
+
+func (w *Window) Size() (int, int) {
+    return w.width, w.height
 }
 
 // Update method updates all the window contents: redraws widgets, models, etc.
