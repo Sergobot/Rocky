@@ -160,8 +160,8 @@ func (w *Window) Hide() {
     }
 }
 
-// Move moves the window on the screen
-func (w *Window) Move(x, y int) {
+// SetPosition moves the window on the screen
+func (w *Window) SetPosition(x, y int) {
     if glfwInitialized && w.state != winClosed {
         w.window.SetPos(x, y)
     } else {
@@ -171,8 +171,8 @@ func (w *Window) Move(x, y int) {
     w.xPos, w.yPos = x, y
 }
 
-// Resize method resizes the window
-func (w *Window) Resize(width, height int) {
+// SetSize method resizes the window
+func (w *Window) SetSize(width, height int) {
     if glfwInitialized && w.state != winClosed {
         w.window.SetSize(width, height)
     } else {
