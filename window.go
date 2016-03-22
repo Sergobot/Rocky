@@ -26,7 +26,7 @@ var glInitialized bool
 // Window represents a wrapper of GLWF window to make it even easier to use
 // Main functions:
 // - Manage the window and OpenGL context in it
-// - Nothing more for now
+// - Nothing more for now.
 type Window struct {
     // Basic window's parametres
     width, height int
@@ -48,7 +48,7 @@ func init() {
     glInitialized = false
 }
 
-// Init initializes or clears Window w
+// Init initializes or clears the window.
 func (w *Window) Init() *Window {
     // width and height are 0 by default, so we set our own defaults
     *w = Window {
@@ -61,10 +61,10 @@ func (w *Window) Init() *Window {
 	return w
 }
 
-// New returns an initialized window
+// NewWindow returns an initialized window.
 func NewWindow() *Window { return new(Window).Init() }
 
-// initGLFW initializes GLFW to create a GLFW window later
+// initGLFW initializes GLFW to create a GLFW window later.
 func (w *Window) initGLFW() {
     // If GLFW is already initialized, don't re-init it
     if glfwInitialized {
@@ -89,7 +89,7 @@ func (w *Window) initGLFW() {
 	glfw.WindowHint(glfw.Resizable, glfw.False)
 }
 
-// initGL initializes OpenGL context
+// initGL initializes OpenGL context.
 func (w *Window) initGL() {
     // If OpenGL is already initialized, don't re-init it
     if glInitialized {
@@ -112,7 +112,7 @@ func (w *Window) initGL() {
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 }
 
-// Show method shows the window
+// Show method shows the window.
 func (w *Window) Show() {
 	if w.state == winHidden {
         w.window.Show()
@@ -146,8 +146,9 @@ func (w *Window) Close() {
     glfwInitialized, glInitialized = false, false
 }
 
-// Hide hides the window: it becomes invisible but still exists
+// Hide hides the window: it becomes invisible but still exists.
 func (w *Window) Hide() {
+    // Hide the window only if it's shown
     if glfwInitialized && w.state != winClosed {
         if w.state != winHidden {
             w.window.Hide()
@@ -160,8 +161,9 @@ func (w *Window) Hide() {
     }
 }
 
-// SetPosition moves the window on the screen
+// SetPosition moves the window on the screen.
 func (w *Window) SetPosition(x, y int) {
+    // Move the window only if it's not closed
     if glfwInitialized && w.state != winClosed {
         w.window.SetPos(x, y)
     } else {
@@ -171,7 +173,7 @@ func (w *Window) SetPosition(x, y int) {
     w.xPos, w.yPos = x, y
 }
 
-// SetSize method resizes the window
+// SetSize method resizes the window.
 func (w *Window) SetSize(width, height int) {
     if glfwInitialized && w.state != winClosed {
         w.window.SetSize(width, height)
@@ -194,7 +196,7 @@ func (w *Window) Update() {
     glfw.PollEvents()
 }
 
-// ShouldClose returns true if window is going to be closed
+// ShouldClose returns true if window is going to be closed.
 func (w *Window) ShouldClose() bool {
     if glfwInitialized {
         return w.window.ShouldClose()
