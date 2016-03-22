@@ -173,8 +173,9 @@ func (w *Window) SetPosition(x, y int) {
     w.xPos, w.yPos = x, y
 }
 
+// Position returns current coordinates of the window on the screen
 func (w *Window) Position() (int, int) {
-    return w.height, w.width
+    return w.xPos, w.yPos
 }
 
 // SetSize method resizes the window.
@@ -188,6 +189,7 @@ func (w *Window) SetSize(width, height int) {
     w.width, w.height = width, height
 }
 
+// Size returns current width and height of the window
 func (w *Window) Size() (int, int) {
     return w.width, w.height
 }
