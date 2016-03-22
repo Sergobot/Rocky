@@ -40,7 +40,7 @@ type Window struct {
     state winState
     
     // Slice of widgets is used to store them and to draw their contents in Update()
-    widgets [] *Widget
+    widgets [] Widget
 }
 
 func init() {
@@ -199,7 +199,7 @@ func (w *Window) Size() (int, int) {
 
 // AddWidget adds a widget to the window. That means that on each
 // call of w.Update() widget.Draw() will be called
-func (w *Window) AddWidget(widget *Widget) {
+func (w *Window) AddWidget(widget Widget) {
     widget.GetReady()
     w.widgets = append(w.widgets, widget)
 }
@@ -208,8 +208,8 @@ func (w *Window) AddWidget(widget *Widget) {
 func (w *Window) Update() {
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     
-    for _, v = range w.widgets {
-        v.Draw()
+    for _, widget := range w.widgets {
+        widget.Draw()
     }
     
     // TODO:
