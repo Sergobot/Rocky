@@ -45,7 +45,7 @@ type Window struct {
 
 func init() {
     // GLFW event handling must run on the main OS thread
-	runtime.LockOSThread()
+    runtime.LockOSThread()
     
     glfwInitialized = false
     glInitialized = false
@@ -61,7 +61,7 @@ func (w *Window) Init() *Window {
         title : "Rocky",
     }
 
-	return w
+    return w
 }
 
 // NewWindow returns an initialized window.
@@ -77,19 +77,19 @@ func (w *Window) initGLFW() {
     
     // Initialize GLFW
     if err := glfw.Init(); err != nil {
-		log.Fatalln("Failed to initialize GLFW:", err)
-	}
+        log.Fatalln("Failed to initialize GLFW:", err)
+    }
     glfwInitialized = true
 
     // Set some necessary window properties
     // Rocky uses OpenGL 3.3 Core profile
     glfw.WindowHint(glfw.ContextVersionMajor, 3) 
-	glfw.WindowHint(glfw.ContextVersionMinor, 3)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+    glfw.WindowHint(glfw.ContextVersionMinor, 3)
+    glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+    glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
     
     // Rocky windows aren't resizeable by user: usually that's not needed in a game
-	glfw.WindowHint(glfw.Resizable, glfw.False)
+    glfw.WindowHint(glfw.Resizable, glfw.False)
 }
 
 // initGL initializes OpenGL context.
@@ -101,23 +101,23 @@ func (w *Window) initGL() {
     }
     
     // Initialize OpenGL
-	if err := gl.Init(); err != nil {
-		log.Fatalln("Failed to initialize OpenGL:", err)
-	}
+    if err := gl.Init(); err != nil {
+        log.Fatalln("Failed to initialize OpenGL:", err)
+    }
     glInitialized = true
 
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Println("Using OpenGL", version)
-	
-	// Configure global settings
-	gl.Enable(gl.DEPTH_TEST)
-	gl.DepthFunc(gl.LESS)
-	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
+    version := gl.GoStr(gl.GetString(gl.VERSION))
+    log.Println("Using OpenGL", version)
+    
+    // Configure global settings
+    gl.Enable(gl.DEPTH_TEST)
+    gl.DepthFunc(gl.LESS)
+    gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 }
 
 // Show method shows the window.
 func (w *Window) Show() {
-	if w.state == winHidden {
+    if w.state == winHidden {
         w.window.Show()
         return
     } else if w.state == winShown {
@@ -131,11 +131,11 @@ func (w *Window) Show() {
     w.initGLFW()
     defer w.initGL()
 
-	window, err := glfw.CreateWindow(w.width, w.height, w.title, nil, nil)
-	if err != nil {
-	    log.Fatalln("Failed to create GLFW window:", err)
-	}
-	window.MakeContextCurrent()
+    window, err := glfw.CreateWindow(w.width, w.height, w.title, nil, nil)
+    if err != nil {
+        log.Fatalln("Failed to create GLFW window:", err)
+    }
+    window.MakeContextCurrent()
     
     // After creating a GLFW window we set w.window to it
     w.window = window
