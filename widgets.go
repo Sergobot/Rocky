@@ -3,7 +3,7 @@
 
 package rocky
 
-// WidgetInterface is the interface every widget should implement.
+// Widget is the interface every widget should implement.
 // Widget is a piece of window's space, which has special view
 // Widgets are:
 // - Buttons
@@ -11,21 +11,25 @@ package rocky
 // - Images
 // - Text fields
 // - And even more!
-type WidgetInterface interface {
+type Widget interface {
+    // Get ready is used to prepare something before drawing.
+    // Called only once, when the widget is added to a window
     GetReady()
+
+    // Draws something in the widget's space
     Draw()
-    
+
     SetSize(w, h int)
     Size() (int, int)
-    
+
     SetPosition(x, y int)
     Position() (int, int)
 }
 
-// Widget is the simpliest widget type; just a blank widget.
+// BasicWidget is the simpliest widget type; just a blank widget.
 // It implements only functions for work with size and position.
 // Used to be inherited by other widgets.
-type Widget struct {
+type BasicWidget struct {
     // Basic parameters
     xPos, yPos int
     width, height int
@@ -34,27 +38,27 @@ type Widget struct {
 }
 
 // SetSize sets the widget's size
-func (w *Widget) SetSize(width, height int) {
+func (w *BasicWidget) SetSize(width, height int) {
     w.width, w.height = width, height
 }
 
 // Size method returns the widget's current width and height
-func (w *Widget) Size() (int, int) {
+func (w *BasicWidget) Size() (int, int) {
     return w.width, w.height
 }
 
 // SetPosition moves the widget on the window, widget is attached to
-func (w* Widget) SetPosition(xPos, yPos int) {
+func (w* BasicWidget) SetPosition(xPos, yPos int) {
     w.xPos, w.yPos = xPos, yPos
 }
 
 // Position method returns the widget's top-left corner current
 // coordinates on the window, the widget is attached to
-func (w *Widget) Position() (int, int) {
+func (w *BasicWidget) Position() (int, int) {
     return w.xPos, w.yPos
 }
-// GetReady does nothing: widget has nothing to prepare for drawing
-func (w *Widget) GetReady() {  }
+// GetReady does nothing: BasicWidget has nothing to prepare for drawing
+func (w *BasicWidget) GetReady() {  }
 
-// Draw does nothing: widget's always blank, we don't draw anything on it
-func (w *Widget) Draw() {  }
+// Draw does nothing: BasicWidget's always blank, we don't draw anything on it
+func (w *BasicWidget) Draw() {  }
