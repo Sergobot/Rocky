@@ -121,6 +121,6 @@ func (t *Texture) SetTextureUnit(unit uint32) {
 }
 
 // TextureUnit returns texture unit the texture is using.
-func (t *Texture) TextureUnit() {
+func (t *Texture) TextureUnit() uint32 {
     return t.unit
 }
