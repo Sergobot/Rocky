@@ -127,6 +127,10 @@ func (sp *ShaderProgram) Link(vertex, fragment Shader) error {
     return nil
 }
 
+func (sp *ShaderProgram) Use() {
+    gl.UseProgram(sp.Program())
+}
+
 // Program returns OpenGL shader program ID
 func (sp *ShaderProgram) Program() uint32 {
     if !sp.linked {
