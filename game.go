@@ -6,5 +6,5 @@ package rocky
 import "fmt"
 
 func start() {
-    fmt.Println("Game started!")
+	fmt.Println("Game started!")
 }
