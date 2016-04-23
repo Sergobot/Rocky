@@ -52,7 +52,7 @@ func (t *Texture) LoadFromFile(file string) error {
 	// Decode the newly loaded image
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		return fmt.Errorf("Failed to decode an image:", err)
+		return fmt.Errorf("Failed to decode an image: %v", err)
 	}
 
 	// Convert the image to unified format - RGBA
@@ -66,7 +66,11 @@ func (t *Texture) LoadFromFile(file string) error {
 	t.imageLoaded = true
 
 	gl.GenTextures(1, &t.texture)
-	t.Bind()
+
+	err = t.Bind()
+	if err != nil {
+		return err
+	}
 
 	// Set texture filtering
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
@@ -90,7 +94,11 @@ func (t *Texture) LoadFromFile(file string) error {
 	gl.GenerateMipmap(gl.TEXTURE_2D)
 
 	// It's a good practice to unbind once we are done
-	t.Unbind()
+	err = t.Unbind()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

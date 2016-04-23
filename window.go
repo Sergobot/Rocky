@@ -60,6 +60,9 @@ func (w *Window) Init() *Window {
 		height: 600,
 
 		title: "Rocky",
+
+		// We set widgets to an empty slice to detach the widgets
+		widgets: []Widget{},
 	}
 
 	return w
@@ -130,7 +133,6 @@ func (w *Window) Show() {
 	// Then we create a window
 	// And only after that we initialize OpenGL context
 	w.initGLFW()
-	defer w.initGL()
 
 	window, err := glfw.CreateWindow(w.width, w.height, w.title, nil, nil)
 	if err != nil {
@@ -140,12 +142,19 @@ func (w *Window) Show() {
 
 	// After creating a GLFW window we set w.window to it
 	w.window = window
+
+	// Now the window is created and we can init OpenGL
+	w.initGL()
 }
 
 // Close closes the window and terminates GLFW.
 func (w *Window) Close() {
+	if !glfwInitialized || w.state == winClosed {
+		log.Println("Prevented re-closing a window")
+	}
+
 	// glfw.Terminate does all the work: it also closes all the remaining windows
-	glfw.Terminate()
+	w.window.Destroy()
 	w.state = winClosed
 	glfwInitialized, glInitialized = false, false
 }
