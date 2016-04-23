@@ -10,9 +10,21 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
+// Typical use of shaders looks like this:
+// ...
+// var vertex, fragment Shader
+// vertex.Compile(vSrc, VertexShader)
+// fragment.Compile(fSrc, FragmentShader)
+// var shaderProgram ShaderProgram
+// shaderProgram.Link(vertex, fragment)
+// ...
+// shaderProgram.Use()
+// ...
+
 // ShaderType variables store type of a shader: vertex or fragment
 type ShaderType int
 
+// Currently Rocky doesn't support geometry shaders yet
 const (
 	VertexShader   ShaderType = iota
 	FragmentShader ShaderType = iota
@@ -69,6 +81,11 @@ func (s *Shader) Compile(source string, t ShaderType) error {
 	s.compiled = true
 
 	return nil
+}
+
+// Compiled returns true if a shader is compiled
+func (s *Shader) Compiled() bool {
+	return s.compiled
 }
 
 // ShaderProgram contains OpenGL shader program ID and its state:
@@ -128,6 +145,7 @@ func (sp *ShaderProgram) Link(vertex, fragment Shader) error {
 	return nil
 }
 
+// Use method makes OpenGL to use the shader program
 func (sp *ShaderProgram) Use() {
 	gl.UseProgram(sp.Program())
 }
