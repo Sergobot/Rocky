@@ -145,6 +145,11 @@ func (sp *ShaderProgram) Link(vertex, fragment Shader) error {
 	return nil
 }
 
+// Linked returns true if a shader program is linked
+func (sp *ShaderProgram) Linked() bool {
+	return sp.linked
+}
+
 // Use method makes OpenGL to use the shader program
 func (sp *ShaderProgram) Use() {
 	gl.UseProgram(sp.Program())
