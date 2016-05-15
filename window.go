@@ -114,6 +114,7 @@ func (w *Window) initGL() {
 	log.Println("Using OpenGL", version)
 
 	// Configure global settings
+	gl.Viewport(0, 0, int32(w.width), int32(w.height))
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
@@ -145,6 +146,8 @@ func (w *Window) Show() {
 
 	// Now the window is created and we can init OpenGL
 	w.initGL()
+	
+	w.state = winShown
 }
 
 // Close closes the window and terminates GLFW.
@@ -174,8 +177,8 @@ func (w *Window) Hide() {
 	}
 }
 
-// SetPosition moves the window on the screen.
-func (w *Window) SetPosition(x, y int) {
+// SetPos moves the window on the screen.
+func (w *Window) SetPos(x, y int) {
 	// Move the window only if it's not closed
 	if glfwInitialized && w.state != winClosed {
 		w.window.SetPos(x, y)
@@ -186,8 +189,8 @@ func (w *Window) SetPosition(x, y int) {
 	w.xPos, w.yPos = x, y
 }
 
-// Position returns current coordinates of the window on the screen
-func (w *Window) Position() (int, int) {
+// Pos returns current coordinates of the window on the screen
+func (w *Window) Pos() (int, int) {
 	return w.xPos, w.yPos
 }
 
@@ -195,8 +198,10 @@ func (w *Window) Position() (int, int) {
 func (w *Window) SetSize(width, height int) {
 	if glfwInitialized && w.state != winClosed {
 		w.window.SetSize(width, height)
+		// Don't forget to resize viewport
+		gl.Viewport(0, 0, int32(width), int32(height))
 	} else {
-		log.Println("Prevented moving a window, when GLFW isn't initialized")
+		log.Println("Prevented resizing a window, when GLFW isn't initialized")
 	}
 	// Even if the window isn't resized, we save new parameters to set them when showing the window again
 	w.width, w.height = width, height
@@ -211,6 +216,7 @@ func (w *Window) Size() (int, int) {
 // call of w.Update() widget.Draw() will be called
 func (w *Window) AddWidget(widget Widget) {
 	widget.GetReady()
+	widget.SetWindowSize(w.width, w.height)
 	w.widgets = append(w.widgets, widget)
 }
 
