@@ -41,6 +41,10 @@ type Texture struct {
 
 // LoadFromFile loads texture from an image file.
 func (t *Texture) LoadFromFile(file string) error {
+	if t.imageLoaded {
+		gl.DeleteTextures(1, &t.texture)
+	}
+	
 	t.imageLoaded = false
 
 	// Load an image from file
@@ -95,16 +99,13 @@ func (t *Texture) LoadFromFile(file string) error {
 
 	// It's a good practice to unbind once we are done
 	err = t.Unbind()
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 // Bind binds the texture for drawing.
 func (t *Texture) Bind() error {
-	if t.imageLoaded {
+	if !t.imageLoaded {
 		return fmt.Errorf("Prevented binding a nonexistent texture")
 	}
 
