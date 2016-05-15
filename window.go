@@ -146,7 +146,7 @@ func (w *Window) Show() {
 
 	// Now the window is created and we can init OpenGL
 	w.initGL()
-	
+
 	w.state = winShown
 }
 

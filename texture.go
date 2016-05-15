@@ -44,7 +44,7 @@ func (t *Texture) LoadFromFile(file string) error {
 	if t.imageLoaded {
 		gl.DeleteTextures(1, &t.texture)
 	}
-	
+
 	t.imageLoaded = false
 
 	// Load an image from file
