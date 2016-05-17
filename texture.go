@@ -103,6 +103,12 @@ func (t *Texture) LoadFromFile(file string) error {
 	return err
 }
 
+// Ready returns true if image is already loaded and the texture
+// is ready to be used
+func (t *Texture) Ready() bool {
+	return t.imageLoaded
+}
+
 // Bind binds the texture for drawing.
 func (t *Texture) Bind() error {
 	if !t.imageLoaded {
