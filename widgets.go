@@ -135,7 +135,7 @@ func (w *BasicWidget) Draw() {}
 type Pixmap struct {
 	BasicWidget
 
-	texture       Texture
+	texture       *Texture
 	vao, vbo, ebo uint32
 }
 
@@ -157,6 +157,16 @@ func (p *Pixmap) LoadFromFile(file string) {
 	err := p.texture.LoadFromFile(file)
 	if err != nil {
 		log.Println("Failed to load image to a Pixmap:", err)
+	}
+}
+
+// SetTexture sets texture to be used by Pixmap. Its purpose is to allow
+// fast switching between textures.
+func (p *Pixmap) SetTexture(tex *Texture) {
+	if tex.Ready() {
+		p.texture = tex
+	} else {
+		log.Println("Prevented setting a not ready texture to pixmap")
 	}
 }
 
