@@ -29,7 +29,7 @@ func (g *Game) ShouldQuit() bool {
 	return g.shouldQuit
 }
 
-// Exec executes event loop (it's Game.loop() by default), in which all the events are sent to their recievers
+// Exec executes event loop (it's Game.loop() by default), in which all the events are sent to their receivers
 func (g *Game) Exec() {
 	go g.loop()
 }
