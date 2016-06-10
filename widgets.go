@@ -4,9 +4,6 @@
 package rocky
 
 import (
-	"log"
-
-	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 )
 
@@ -136,128 +133,6 @@ func (w *BasicWidget) Draw() {}
 // using if/else or switch/case. That's a good practice.
 func (w *BasicWidget) ProcessEvent(e Event) {}
 
-// Pixmap is one of the simplest widgets, intended to draw raster images
-// using OpenGL. It uses Texture struct for image loading and ShaderProgram
-// for drawing. Also Pixmap inherits very basic methods from BasicWidget.
-type Pixmap struct {
-	BasicWidget
-
-	texture       *Texture
-	vao, vbo, ebo uint32
-}
-
-// init is used to initialize pixmap's matrices and currently nothing more.
-// If you have an idea about better solution, contribute please.
-func (p *Pixmap) init() *Pixmap {
-	p.transMat = mgl32.Ident4()
-	p.scaleMat = mgl32.Ident4()
-	return p
-}
-
-// NewPixmap is used to create initialized Pixmap. For now, that's required
-// to have identity matrices instead of null ones.
-// As mentioned above, if you know better solution, contribute please.
-func NewPixmap() *Pixmap { return new(Pixmap).init() }
-
-// LoadFromFile loads a texture from the given image.
-func (p *Pixmap) LoadFromFile(file string) {
-	err := p.texture.LoadFromFile(file)
-	if err != nil {
-		log.Println("Failed to load image to a Pixmap:", err)
-	}
-}
-
-// SetTexture sets texture to be used by Pixmap. Its purpose is to allow
-// fast switching between textures.
-func (p *Pixmap) SetTexture(tex *Texture) {
-	if tex.Ready() {
-		p.texture = tex
-	} else {
-		log.Println("Prevented setting a not ready texture to pixmap")
-	}
-}
-
-// GetReady initializes the Pixmap to be ready to Draw() function calls.
-func (p *Pixmap) GetReady() {
-	if p.ready {
-		return
-	}
-
-	p.ready = false
-
-	if !PixmapShaderProgram.Linked() {
-		var vShader, fShader Shader
-		if err := vShader.Compile(PixmapVertexShaderSrc, VertexShader); err != nil {
-			log.Println("Failed to compile Pixmap vertex shader:", err)
-			return
-		}
-		if err := fShader.Compile(PixmapFragmentShaderSrc, FragmentShader); err != nil {
-			log.Println("Failed to compile Pixmap fragment shader:", err)
-			return
-		}
-		if err := PixmapShaderProgram.Link(vShader, fShader); err != nil {
-			log.Println("Failed to link Pixmap shader program:", err)
-			return
-		}
-	}
-
-	// Here we generate VAO, VBO and EBO
-	gl.GenVertexArrays(1, &p.vao)
-	gl.BindVertexArray(p.vao)
-
-	gl.GenBuffers(1, &p.vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, p.vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(WidgetVertices)*4, gl.Ptr(WidgetVertices), gl.STATIC_DRAW)
-
-	gl.GenBuffers(1, &p.ebo)
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.ebo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(WidgetIndices)*4, gl.Ptr(WidgetIndices), gl.STATIC_DRAW)
-
-	// And then we load vertices and indices to OpenGL pipeline.
-	vertAttrib := uint32(gl.GetAttribLocation(PixmapShaderProgram.Program(), gl.Str("vert\x00")))
-	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(0))
-
-	texCoordAttrib := uint32(gl.GetAttribLocation(PixmapShaderProgram.Program(), gl.Str("vertTexCoord\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib)
-	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-
-	gl.BindVertexArray(0)
-
-	// When we have already loaded vertices and indices,
-	// it's time for uniforms, like texture
-	textureUniform := gl.GetUniformLocation(PixmapShaderProgram.Program(), gl.Str("tex\x00"))
-	gl.Uniform1i(textureUniform, 0)
-
-	p.ready = true
-}
-
-// Draw draws Pixmap's contents to the screen
-func (p *Pixmap) Draw() {
-	if !p.ready {
-		log.Println("Prevented drawing a not ready Pixmap")
-		return
-	}
-
-	transMatUniform := gl.GetUniformLocation(PixmapShaderProgram.Program(), gl.Str("transMat\x00"))
-	gl.UniformMatrix4fv(transMatUniform, 1, false, &p.transMat[0])
-	scaleMatUniform := gl.GetUniformLocation(PixmapShaderProgram.Program(), gl.Str("scaleMat\x00"))
-	gl.UniformMatrix4fv(scaleMatUniform, 1, false, &p.scaleMat[0])
-
-	// Activate shader
-	PixmapShaderProgram.Use()
-	//Bind texture
-	err := p.texture.Bind()
-	if err != nil {
-		log.Println("Failed to bind texture while drawing Pixmap:", err)
-	}
-
-	// Draw container
-	gl.BindVertexArray(p.vao)
-	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
-	gl.BindVertexArray(0)
-}
-
 // WidgetVertices are default widget vertices
 var WidgetVertices = []float32{
 	// Positions (X, Y, Z)	// Texture Coords (U, V)
@@ -272,31 +147,3 @@ var WidgetIndices = []uint32{
 	0, 1, 3,
 	1, 2, 3,
 }
-
-// PixmapShaderProgram is default shader program for Pixmaps
-var PixmapShaderProgram ShaderProgram
-
-// PixmapVertexShaderSrc is default vertex shader source for Pixmaps
-var PixmapVertexShaderSrc = `
-#version 330 core
-in vec3 vert;
-in vec2 vertTexCoord;
-out vec2 fragTexCoord;
-uniform mat4 transMat;
-uniform mat4 scaleMat;
-void main() {
-    gl_Position = scaleMat * transMat * vec4(vert, 1.0f);
-    fragTexCoord = vec2(vertTexCoord.x, 1.0 - vertTexCoord.y);
-}
-` + "\x00"
-
-// PixmapFragmentShaderSrc is default fragment shader source for Pixmaps
-var PixmapFragmentShaderSrc = `
-#version 330 core
-in vec2 fragTexCoord;
-out vec4 color;
-uniform sampler2D tex;
-void main() {
-    color = texture(tex, fragTexCoord).rgba;
-}
-` + "\x00"
