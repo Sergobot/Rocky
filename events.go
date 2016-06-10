@@ -3,14 +3,17 @@
 
 package rocky
 
+import (
+	"github.com/go-gl/glfw/v3.1/glfw"
+)
+
 // EventType is a custom type to classify events
 type EventType int
 
 // Here are all the available (for now) event types
 const (
-	// NotAnEvent should be always equal to 0, which is default
-	// value of Event.Type
-	NotAnEvent           EventType = 0
+	// NotAnEvent should be always equal to -1 to easily recognize empty events
+	NotAnEvent           EventType = -1
 	KeyEventType         EventType = iota
 	MouseButtonEventType EventType = iota
 	CursorEventType      EventType = iota
@@ -44,13 +47,13 @@ type Event interface {
 // BasicEvent is a base struct for all the other events. It deals with routine like
 // storing event's type, receiver and setting/getting these.
 type BasicEvent struct {
-	eType    EventType
 	receiver EventReceiver
 }
 
-// Type returns type of an event
+// Type returns type of an event. Since BasicEvent doesn't contain any data except
+// of event receiver, it's actually not an Event.
 func (be *BasicEvent) Type() EventType {
-	return be.eType
+	return NotAnEvent
 }
 
 // SetReceiver sets receiver for an event
@@ -66,6 +69,57 @@ func (be *BasicEvent) Receiver() EventReceiver {
 // Process is juts an alias for Event.receiver.ProcessEvent(Event)
 func (be *BasicEvent) Process() {
 	be.receiver.ProcessEvent(be)
+}
+
+// KeyEvent is a wrapper for data of GLFW's key callback function (KeyCallback(...)).
+// It contains:
+// - Key
+// - Scancode
+// - Action (Pressed, Released and so on)
+// - Modifiers (Shift, Alt and so on).
+type KeyEvent struct {
+	BasicEvent
+	Key      glfw.Key
+	Scancode int
+	Action   glfw.Action
+	Mods     glfw.ModifierKey
+}
+
+// Type returns type of an event. For KeyEvent it is KeyEventType.
+func (ke *KeyEvent) Type() EventType {
+	return KeyEventType
+}
+
+// Fill wraps raw GLFW data in a single Event struct
+func (ke *KeyEvent) Fill(k glfw.Key, s int, a glfw.Action, m glfw.ModifierKey) {
+	ke.Key = k
+	ke.Scancode = s
+	ke.Action = a
+	ke.Mods = m
+}
+
+// MouseButtonEvent is a wrapper for data of GLFW's mouse button callback function
+// (MouseButtonCallback(...)). It contains:
+// - Button (Left, Middle etc)
+// - Action (Pressed or Released)
+// - Modifiers (Shift, Alt and so on)
+type MouseButtonEvent struct {
+	BasicEvent
+	Button glfw.MouseButton
+	Action glfw.Action
+	Mods   glfw.ModifierKey
+}
+
+// Type returns type of an event. For MouseButtonEvent it is MouseButtonEventType.
+func (mbe *MouseButtonEvent) Type() EventType {
+	return MouseButtonEventType
+}
+
+// Fill wraps raw GLFW data in a single Event struct
+func (mbe *MouseButtonEvent) Fill(b glfw.MouseButton, a glfw.Action, m glfw.ModifierKey) {
+	mbe.Button = b
+	mbe.Action = a
+	mbe.Mods = m
 }
 
 // EventQueue strust is used to store events in queue. It has 2 methods:

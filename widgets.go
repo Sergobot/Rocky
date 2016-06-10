@@ -36,7 +36,9 @@ type Widget interface {
 }
 
 // BasicWidget is the simpliest widget type, just a blank widget.
-// It implements only functions for work with size and position.
+// It implements only functions for work with size, position and event handling.
+// Mention that we have to reimplement event handling function in inherited widgets,
+// since BasicWidget has only blank .ProcessEvent() method.
 // Used to be inherited by other widgets.
 type BasicWidget struct {
 	// Basic parameters
@@ -128,6 +130,11 @@ func (w *BasicWidget) GetReady() { w.ready = true }
 
 // Draw does nothing: BasicWidget's always blank, we don't draw anything on it
 func (w *BasicWidget) Draw() {}
+
+// ProcessEvent does nothing: BasicWidget doesn't have to react on anything.
+// In real ProcessEvent method() you may want to pass an event to another method
+// using if/else or switch/case. That's a good practice.
+func (w *BasicWidget) ProcessEvent(e Event) {}
 
 // Pixmap is one of the simplest widgets, intended to draw raster images
 // using OpenGL. It uses Texture struct for image loading and ShaderProgram
