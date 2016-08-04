@@ -4,4 +4,4 @@
 [![Stories in Ready](https://badge.waffle.io/Sergobot/Rocky.png?label=ready&title=Ready)](https://waffle.io/Sergobot/Rocky)
 
 # Rocky
-Simple, cross-platform, Open Source game engine
+Simple and cross-platform game engine
