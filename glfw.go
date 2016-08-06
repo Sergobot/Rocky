@@ -1,0 +1,31 @@
+// Copyright (c) 2016 Sergey Popov <sergobot@protonmail.com>
+
+package rocky
+
+import (
+	"log"
+	"runtime"
+
+	"github.com/go-gl/glfw/v3.2/glfw"
+)
+
+func init() {
+	// GLFW event handling must run on the main OS thread
+	runtime.LockOSThread()
+}
+
+func initGLFW() error {
+	if err := glfw.Init(); err != nil {
+		return err
+	}
+
+	major, minor, revision := glfw.GetVersion()
+	log.Printf("Successfully initialized GLFW %d.%d.%d", major, minor, revision)
+
+	return nil
+}
+
+func terminateGLFW() {
+	glfw.Terminate()
+	log.Println("Terminated GLFW")
+}
