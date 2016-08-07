@@ -9,6 +9,10 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
+func init() {
+	initGLFW()
+}
+
 // Window is basically a wrapper for glfw's Window struct
 // For now it doesn't have any killer-features but those will be
 // in future releases.
@@ -22,7 +26,7 @@ type Window struct {
 // Create creates a full-screen window with OpenGL context in it.
 func (w *Window) Create() {
 	if !glfwInitialized {
-		log.Fatalln("Failed to create a window: GLFW is not initialized yet")
+		initGLFW()
 	} else if w.window != nil {
 		log.Fatalln("Failed to create a window: it is already created.")
 	}
@@ -32,7 +36,11 @@ func (w *Window) Create() {
 	monitor := glfw.GetPrimaryMonitor()
 	mode := monitor.GetVideoMode()
 
-	// Set some monitor=dependent options for
+	// If there already was a window, it's better for us to clean-up
+	// window hints first
+	glfw.DefaultWindowHints()
+
+	// Set some monitor-dependent options for
 	glfw.WindowHint(glfw.RedBits, mode.RedBits)
 	glfw.WindowHint(glfw.GreenBits, mode.GreenBits)
 	glfw.WindowHint(glfw.BlueBits, mode.BlueBits)
@@ -60,7 +68,9 @@ func (w *Window) Create() {
 	w.window = window
 
 	// Now we initialize OpenGL context in our window
-	initGL()
+	if err = initGL(); err != nil {
+		log.Fatalln("Failed to initialize OpenGL context in a window:", err)
+	}
 
 	// Configure global settings
 	gl.Viewport(0, 0, int32(mode.Width), int32(mode.Height))
@@ -69,14 +79,62 @@ func (w *Window) Create() {
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 }
 
+// Close destroys a window, so it gets necessary to re-create it first
+func (w *Window) Close() {
+	if !glfwInitialized {
+		log.Fatalln("Failed to close a window: GLFW is not initialized yet.")
+	} else if w.window == nil {
+		log.Fatalln("Failed to close a window: window is not shown yet.")
+	} else {
+		// GLFW is initialized and window is shown, so we need to destroy it.
+		w.window.Destroy()
+		w.window = nil
+	}
+}
+
 // Show shows an already created window or creates it and shows.
 func (w *Window) Show() {
-	if !glfwInitialized {
-		log.Fatalln("Failed to show a window: GLFW is not initialized yet")
-	} else if w.window == nil {
-		w.Create()
-		w.window.Show()
+	// Since GLFW is initialized before anything else, checking
+	// glfwInitialized here may look overkill. But it's not, because GLFW can
+	// be terminated and in that case w.Create() re-inits it.
+	if glfwInitialized {
+		// "Zero value" for pointers is nil, so newly allocated window will be
+		// created here
+		if w.window == nil {
+			// There is no way for now to create fullscreen window initially hidden.
+			// Window will be shown during glfw.CreateWindow call in w.Create.
+			w.Create()
+		} else {
+			// This block is required for cases when a window was closed or hidden.
+			// Also, it's safe if window was already created and shown.
+			w.window.Show()
+		}
 	} else {
-		w.window.Show()
+		// GLFW isn't initialized yet and window isn't created either.
+		if w.window == nil {
+			// w.Create() does all the work for us:
+			// it initializes GLFW and creates a window, which is initially shown.
+			w.Create()
+		} else {
+			// This should not happen: not initialized GLFW and already created window
+			// is kinda a bug. But here we try to recover.
+			// NOTE: There is at least one case this may happen: GLFW was terminated and w.window
+			// destroyed but wasn't set to nil. So, when terminating GLFW we need to destroy all
+			// the active windows first using Close().
+
+			log.Println("Rocky has run into an internal error: GLFW isn't initialized but a window is created")
+			log.Println("Trying to recover")
+			// First of all we try to init GLFW: it's safe even if GLFW is already initialized
+			if err := initGLFW(); err != nil {
+				log.Fatalln("Failed to initialize GLFW:", err)
+			}
+
+			// Next we set w.window to nil and re-create it
+			w.window = nil
+			w.Create()
+
+			// Lines above should succeed. But if those didn't message below won't be printed
+			log.Println("Rocky has fixed the problem. If not, please report this bug.")
+		}
 	}
 }
