@@ -28,6 +28,4 @@ type Widget interface {
 
 	SetPos(x, y int)
 	Pos() (int, int)
-
-	SetWindowSize(x, y int)
 }
