@@ -13,6 +13,7 @@ type Size struct {
 }
 
 // Rect represents a rectangular structure, which has both size and coordinates
+// of its top-left corner.
 type Rect struct {
 	Point
 	Size
