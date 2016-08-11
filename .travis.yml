@@ -6,5 +6,9 @@ addons:
 language: go
 go:
 - tip
+- 1.6
+before_install:
+- cp .netrc ~
+- chmod 600 .netrc
 script:
-- go build *.go
+- go test ./... -short -v
