@@ -1,6 +1,6 @@
 // Copyright (c) 2016 Sergey Popov <sergobot@protonmail.com>
 
-package rocky
+package window
 
 import (
 	"log"
