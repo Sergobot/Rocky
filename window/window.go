@@ -13,6 +13,7 @@ import (
 
 func init() {
 	initGLFW()
+	internal = new(Window)
 	internal.Create()
 }
 
