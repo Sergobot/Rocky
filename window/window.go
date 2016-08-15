@@ -7,10 +7,27 @@ import (
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+
+	g "github.com/Sergobot/Rocky/geometry"
 )
 
 func init() {
 	initGLFW()
+	internal.Create()
+}
+
+// Set sets a window to be used by other Rocky structs. There can be only one currently
+// used window.
+func Set(w *Window) {
+	// TODO:
+	// Notify widgets and others about window change
+	internal = w
+}
+
+// Get returns a window used by Rocky now. It's often called in widgets' GetReady()
+// or SetGeometry()
+func Get() *Window {
+	return internal
 }
 
 // Window is basically a wrapper for glfw's Window struct
@@ -21,7 +38,12 @@ func init() {
 // - That's all for this moment.
 type Window struct {
 	window *glfw.Window
+
+	// Rectangle, representing window's bounding box
+	geometry g.Rect
 }
+
+var internal *Window
 
 // Create creates a full-screen window with OpenGL context in it.
 func (w *Window) Create() {
@@ -137,4 +159,16 @@ func (w *Window) Show() {
 			log.Println("Rocky has fixed the problem. If not, please report this bug.")
 		}
 	}
+}
+
+// SetGeometry sets geometry (bounding box) of a window.
+func (w *Window) SetGeometry(r g.Rect) {
+	// TODO:
+	// Make window able to resize
+	w.geometry = r
+}
+
+// Geometry returns geometry (bounding box) of a window.
+func (w *Window) Geometry() g.Rect {
+	return w.geometry
 }

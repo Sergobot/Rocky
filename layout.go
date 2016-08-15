@@ -2,7 +2,11 @@
 
 package rocky
 
-import "fmt"
+import (
+	"fmt"
+
+	g "github.com/Sergobot/Rocky/geometry"
+)
 
 // Layout is an interface for objects, responsible for making widgets look nice
 // together. Also, layouts should save developers from pain of setting pixel sizes
@@ -15,8 +19,8 @@ type Layout interface {
 	RemoveWidget(Widget) error
 
 	// Sets bounding box for a layout. Layout can't grow bigger than that Rect.
-	SetGeometry(Rect)
-	Geometry() Rect
+	SetGeometry(g.Rect)
+	Geometry() g.Rect
 
 	// Makes Layout to update widgets' sizes. Usually, it's called automatically
 	// but you can override that.
@@ -30,7 +34,7 @@ type Layout interface {
 // BasicLayout is a very basic layout struct, used to be embedded in other layouts.
 type BasicLayout struct {
 	// Bounding box of a layout
-	geometry Rect
+	geometry g.Rect
 
 	widgets []Widget
 }
@@ -38,7 +42,7 @@ type BasicLayout struct {
 // AddWidget adds a widget to a layout.
 func (bl *BasicLayout) AddWidget(w Widget) {
 	w.GetReady()
-	bl.widgets = append(bl.widgets, w)
+	bl.widgets = append(bl.Widgets(), w)
 
 	bl.Activate()
 }
@@ -46,9 +50,9 @@ func (bl *BasicLayout) AddWidget(w Widget) {
 // RemoveWidget removes a widget from a layout.
 func (bl *BasicLayout) RemoveWidget(w Widget) error {
 	removed := false
-	for i, v := range bl.widgets {
+	for i, v := range bl.Widgets() {
 		if w == v {
-			bl.widgets = append(bl.widgets[:i], bl.widgets[i+1:]...)
+			bl.widgets = append(bl.Widgets()[:i], bl.Widgets()[i+1:]...)
 			removed = true
 		}
 	}
@@ -62,13 +66,13 @@ func (bl *BasicLayout) RemoveWidget(w Widget) error {
 }
 
 // SetGeometry sets geometry (bounding box) of a layout.
-func (bl *BasicLayout) SetGeometry(r Rect) {
+func (bl *BasicLayout) SetGeometry(r g.Rect) {
 	bl.geometry = r
 	bl.Activate()
 }
 
 // Geometry returns geometry (bounding box) of a layout.
-func (bl *BasicLayout) Geometry() Rect {
+func (bl *BasicLayout) Geometry() g.Rect {
 	return bl.geometry
 }
 
