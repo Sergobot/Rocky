@@ -8,7 +8,8 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 
-	"github.com/Sergobot/Rocky/window/base"
+	"github.com/Sergobot/Rocky/window/basic"
+	"github.com/Sergobot/Rocky/window/state"
 )
 
 // Window is basically a wrapper for glfw's Window struct
@@ -18,10 +19,10 @@ import (
 // - Manage GLFW window and OpenGL context in it;
 // - That's all for this moment.
 type Window struct {
-	// Embed BasicWindow to match base.Window interface and to get some very basic
+	// Embed basic.window to match basic.Window interface and to get some very basic
 	// methods, like [Set]Geometry() and others. However, we still need to reimplement
 	// some of them.
-	base.BasicWindow
+	basic.Window
 
 	window *glfw.Window
 }
@@ -78,44 +79,47 @@ func (w *Window) create() {
 	// Configure global settings
 	gl.Viewport(0, 0, int32(fbWidth), int32(fbHeight))
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
+
+	// Since window is already shown during glfw.CreateWindow(), we need to set
+	// appropriate State
+	w.Window.Show()
 }
 
 // Show shows an already created window or creates it and shows.
 func (w *Window) Show() {
 	switch w.State() {
-	case base.Hidden:
+	case state.Hidden:
 		w.window.Show()
-	case base.NotInitialized:
+	case state.NotInitialized:
 		w.create()
-	case base.Shown:
+	case state.Shown:
 		// Do nothing, window is already shown
 	default:
 		log.Println("Unknown State detected, leaving window unchanged.")
 	}
-	w.BasicWindow.Show()
+	w.Window.Show()
 }
 
 // Hide makes a window invisible but doesn't destroy it.
 func (w *Window) Hide() {
 	switch w.State() {
-	case base.Shown:
+	case state.Shown:
 		w.window.Hide()
-	case base.Hidden:
+	case state.Hidden:
 		// Do nothing
-	case base.NotInitialized:
+	case state.NotInitialized:
 		log.Println("Failed to hide a window: Window is not initialized.")
 	default:
 		log.Println("Unknown State detected, leaving window unchanged.")
 	}
-	w.BasicWindow.Hide()
+	w.Window.Hide()
 }
 
 // Destroy destoys a window. Destoyed windows are assumed to be just like newly created.
 func (w *Window) Destroy() {
 	// We don't need to destroy an already destroyed/not initialized window.
-	if w.State() != base.NotInitialized {
+	if w.State() != state.NotInitialized {
 		w.window.Destroy()
-		w.BasicWindow.Destroy()
+		w.Window.Destroy()
 	}
-
 }
