@@ -18,7 +18,8 @@ import (
 // - And even more!
 type Widget interface {
 	// GetReady does everything about initialization before drawing.
-	// It's called only once, when widget is going to be drawn for the first time.
+	// Usually it's called in AddWidget method of a window, so there is no need
+	// to call it manually anywhere else.
 	GetReady() error
 
 	// Update updates widget's contents and reacts to events (if there are some).
@@ -29,6 +30,11 @@ type Widget interface {
 	// Update().
 	Draw()
 
+	// These two methods operate on a window, a widget is attached to. Should be
+	// called in window's AddWidget or something like that.
+	SetParentWindow(window.Window)
+	ParentWindow() window.Window
+
 	// Some basic methods to contol widget's size and position.
 	SetGeometry(g.Rect)
 	Geometry() g.Rect
@@ -38,7 +44,11 @@ type Widget interface {
 // It implements only functions for work with size and position.
 // Used to be embedded in another more specific widget struct.
 type BasicWidget struct {
-	// Basic parameters
+	// Pointer to a window, a widget is attached to. If there is none, this pointer
+	// should be nil
+	parentWindow *window.Window
+
+	// Basic parameters: width, height and X/Y coordinates
 	geometry g.Rect
 
 	// This matrix is responsible for widget moving
@@ -53,6 +63,13 @@ type BasicWidget struct {
 // SetGeometry sets the rectangle (or bounding box, if you want) of a widget.
 // That means, widget will have same coordinates and size as a given rect.
 func (bw *BasicWidget) SetGeometry(r g.Rect) {
+	// If there is no parent window we just save new rect and return. When the widget
+	// will be added to a window (through layout) and GetReady will be called, that
+	// geometry will be fully applied.
+	if bw.parentWindow == nil || !bw.ready {
+		bw.geometry = r
+		return
+	}
 	// If widget already has equal bounding box, we simply return
 	if bw.Geometry() == r {
 		return
@@ -63,8 +80,7 @@ func (bw *BasicWidget) SetGeometry(r g.Rect) {
 	var xTrans, yTrans, zTrans float32
 
 	// Get width and height of the currently used window
-	win := window.Get()
-	wWidth, wHeight := win.Geometry().W, win.Geometry().H
+	wWidth, wHeight := bw.ParentWindow().Geometry().W, bw.ParentWindow().Geometry().H
 
 	// First we apply size changes, if there are any
 	if r.Size != bw.Geometry().Size {
@@ -82,7 +98,7 @@ func (bw *BasicWidget) SetGeometry(r g.Rect) {
 		yCur := float32(wHeight-2*bw.Geometry().Y) / float32(wHeight)
 
 		// If pos should be kept the same, we find new "bad" coordinates and
-		// translate
+		// translate back
 		xBad := xCur * xScaleRatio
 		yBad := yCur * yScaleRatio
 
@@ -109,11 +125,49 @@ func (bw *BasicWidget) Geometry() g.Rect {
 	return bw.geometry
 }
 
-// GetReady does nothing: BasicWidget has nothing to prepare for drawing
-func (bw *BasicWidget) GetReady() {}
+// GetReady initializes matrices and if there was attempt to resize/move widget
+// that geometry change is applied here.
+func (bw *BasicWidget) GetReady() {
+	// Check if window is attached to a window. GetReady assumes SetParentWindow
+	// was already called.
+	if bw.ParentWindow() == nil {
+		return
+	}
+	// Make sure matrices are initialized
+	if blankMat := [16]float32{0}; bw.transMat == blankMat && bw.scaleMat == blankMat {
+		bw.transMat, bw.scaleMat = mgl32.Ident4(), mgl32.Ident4()
+
+		// Since widget is not actually resized before adding it to a window, we
+		// reset widget's geometry and resize it again.
+		var zeroRect g.Rect
+		if bw.Geometry() != zeroRect {
+			curGeom := bw.Geometry()
+			// Reset geometry to a zero-valued one
+			bw.geometry = zeroRect
+			// Finally set geometry
+			bw.SetGeometry(curGeom)
+		}
+	} else {
+		// Matrices are already intialized, so GetReady was called earlier. That
+		// usually means the widget was attached to a window and now it's being
+		// re-attached.
+		// TODO:
+		// - Make it able to re-attach widget to a window.
+	}
+}
 
 // Update does nothing: BasicWidget should not get any events or draw anything
 func (bw *BasicWidget) Update() {}
 
 // Draw does nothing: BasicWidget's always blank, we don't draw anything on it
 func (bw *BasicWidget) Draw() {}
+
+// SetParentWindow sets a parent window for a widget.
+func (bw *BasicWidget) SetParentWindow(w *window.Window) {
+	bw.parentWindow = w
+}
+
+// ParentWindow returns current parent window of a widget
+func (bw *BasicWidget) ParentWindow() *window.Window {
+	return bw.parentWindow
+}
