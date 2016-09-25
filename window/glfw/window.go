@@ -8,6 +8,7 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 
+	"github.com/Sergobot/Rocky/opengl/gl33"
 	"github.com/Sergobot/Rocky/window/basic"
 	"github.com/Sergobot/Rocky/window/state"
 )
@@ -31,7 +32,9 @@ type Window struct {
 // called when Show() is run for the first time.
 func (w *Window) create() {
 	if !glfwInitialized {
-		initGLFW()
+		if err := initGLFW(); err != nil {
+			log.Fatalln("Failed to initialize GLFW:", err)
+		}
 	}
 
 	// First of all we get primary monitor's video mode to get some
@@ -71,13 +74,13 @@ func (w *Window) create() {
 	w.window = window
 
 	// Now we initialize OpenGL context in our window
-	if err = initGL(); err != nil {
+	if err = gl33.Init(); err != nil {
 		log.Fatalln("Failed to initialize OpenGL context in a window:", err)
 	}
 
-	fbWidth, fbHeight := w.window.GetFramebufferSize()
 	// Configure global settings
-	gl.Viewport(0, 0, int32(fbWidth), int32(fbHeight))
+	fbWidth, fbHeight := w.window.GetFramebufferSize()
+	gl33.SetViewport(0, 0, int32(fbWidth), int32(fbHeight))
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
 	// Since window is already shown during glfw.CreateWindow(), we need to set
