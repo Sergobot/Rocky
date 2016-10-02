@@ -5,7 +5,7 @@ package gl33
 import (
 	"log"
 
-	"github.com/go-gl/gl/v3.3/gl"
+	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 
 	"github.com/Sergobot/Rocky/opengl/gl33"
