@@ -25,7 +25,8 @@ type Widget struct {
 // SetGeometry sets the rectangle (or bounding box, if you want) of a widget.
 // That means, widget will have same coordinates and size as a given rect.
 func (w *Widget) SetGeometry(r g.RectF) {
-	w.geometry = r
+	w.SetSize(r.SizeF)
+	w.SetPos(r.PosF)
 }
 
 // Geometry returns current bounding box of a widget.
