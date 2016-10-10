@@ -28,11 +28,11 @@ type Widget interface {
 	Draw()
 
 	// Some basic methods to contol widget's size and position.
-	SetSize()
-	Size()
+	SetSize(g.SizeF)
+	Size() g.SizeF
 
-	SetPos()
-	Pos()
+	SetPos(g.PosF)
+	Pos() g.PosF
 
 	// These two are usually aliases for separate size and pos set/get methods
 	SetGeometry(g.RectF)
