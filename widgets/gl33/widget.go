@@ -36,8 +36,8 @@ func (w *Widget) Geometry() g.RectF {
 
 // SetSize sets the widget's size. You can call it manually or through SetGeometry.
 func (w *Widget) SetSize(s g.SizeF) {
-	xScaleRatio := float32(s.W) / float32(w.geometry.W)
-	yScaleRatio := float32(s.H) / float32(w.geometry.H)
+	xScaleRatio := s.W / w.geometry.W
+	yScaleRatio := s.H / w.geometry.H
 	zScaleRatio := float32(1) // There is no need to scale Z coordinate
 
 	// This is because of side effect of scaling: our widget moves and we need to
