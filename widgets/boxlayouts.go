@@ -20,10 +20,10 @@ type HBoxLayout struct {
 // Activate does all the arrangement work for a layout: it calculates required size
 // for each widget and resizes them.
 func (hbl *HBoxLayout) Activate() {
-	var widgetRect g.Rect
+	var widgetRect g.RectF
 
 	count := len(hbl.Widgets())
-	width := hbl.Geometry().W / count
+	width := hbl.Geometry().W / float32(count)
 
 	widgetRect.W = width
 	widgetRect.H = hbl.Geometry().H
@@ -55,10 +55,10 @@ type VBoxLayout struct {
 // Activate does all the arrangement work for a layout: it calculates required size
 // for each widget and resizes them.
 func (vbl *VBoxLayout) Activate() {
-	var widgetRect g.Rect
+	var widgetRect g.RectF
 
 	count := len(vbl.Widgets())
-	height := vbl.Geometry().H / count
+	height := vbl.Geometry().H / float32(count)
 
 	widgetRect.W = vbl.Geometry().W
 	widgetRect.H = height

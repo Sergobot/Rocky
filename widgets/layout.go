@@ -19,8 +19,8 @@ type Layout interface {
 	RemoveWidget(Widget) error
 
 	// Sets bounding box for a layout. Layout can't grow bigger than that Rect.
-	SetGeometry(g.Rect)
-	Geometry() g.Rect
+	SetGeometry(g.RectF)
+	Geometry() g.RectF
 
 	// Makes Layout to update widgets' sizes. Usually, it's called automatically
 	// but you can override that.
@@ -34,7 +34,7 @@ type Layout interface {
 // BasicLayout is a very basic layout struct, used to be embedded in other layouts.
 type BasicLayout struct {
 	// Bounding box of a layout
-	geometry g.Rect
+	geometry g.RectF
 
 	widgets []Widget
 }
@@ -66,13 +66,13 @@ func (bl *BasicLayout) RemoveWidget(w Widget) error {
 }
 
 // SetGeometry sets geometry (bounding box) of a layout.
-func (bl *BasicLayout) SetGeometry(r g.Rect) {
+func (bl *BasicLayout) SetGeometry(r g.RectF) {
 	bl.geometry = r
 	bl.Activate()
 }
 
 // Geometry returns geometry (bounding box) of a layout.
-func (bl *BasicLayout) Geometry() g.Rect {
+func (bl *BasicLayout) Geometry() g.RectF {
 	return bl.geometry
 }
 
