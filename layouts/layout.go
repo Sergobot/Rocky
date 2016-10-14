@@ -1,11 +1,12 @@
 // Copyright (c) 2016 Sergey Popov <sergobot@protonmail.com>
 
-package widgets
+package layouts
 
 import (
 	"fmt"
 
 	g "github.com/Sergobot/Rocky/geometry"
+	"github.com/Sergobot/Rocky/widgets"
 )
 
 // Layout is an interface for objects, responsible for making widgets look nice
@@ -15,8 +16,8 @@ import (
 // - HLayout - horizontally arranges widgets one next another on screen.
 type Layout interface {
 	// Obvious methods to add/remove widgets
-	AddWidget(Widget)
-	RemoveWidget(Widget) error
+	AddWidget(widgets.Widget)
+	RemoveWidget(widgets.Widget) error
 
 	// Sets bounding box for a layout. Layout can't grow bigger than that Rect.
 	SetGeometry(g.RectF)
@@ -28,7 +29,7 @@ type Layout interface {
 
 	// Returns slice of all the widgets attached to a layout. May be required when
 	// drawing.
-	Widgets() []Widget
+	Widgets() []widgets.Widget
 }
 
 // BasicLayout is a very basic layout struct, used to be embedded in other layouts.
@@ -36,11 +37,11 @@ type BasicLayout struct {
 	// Bounding box of a layout
 	geometry g.RectF
 
-	widgets []Widget
+	widgets []widgets.Widget
 }
 
 // AddWidget adds a widget to a layout.
-func (bl *BasicLayout) AddWidget(w Widget) {
+func (bl *BasicLayout) AddWidget(w widgets.Widget) {
 	w.GetReady()
 	bl.widgets = append(bl.Widgets(), w)
 
@@ -48,7 +49,7 @@ func (bl *BasicLayout) AddWidget(w Widget) {
 }
 
 // RemoveWidget removes a widget from a layout.
-func (bl *BasicLayout) RemoveWidget(w Widget) error {
+func (bl *BasicLayout) RemoveWidget(w widgets.Widget) error {
 	removed := false
 	for i, v := range bl.Widgets() {
 		if w == v {
@@ -84,6 +85,6 @@ func (bl *BasicLayout) Activate() {
 }
 
 // Widgets returns slice of widgets attached to a layout.
-func (bl *BasicLayout) Widgets() []Widget {
+func (bl *BasicLayout) Widgets() []widgets.Widget {
 	return bl.widgets
 }
