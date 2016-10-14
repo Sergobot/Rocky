@@ -18,8 +18,6 @@ type Widget struct {
 
 	// Two matrices: one for scalings, another for translatons
 	transMat, scaleMat mgl32.Mat4
-
-	ready bool
 }
 
 // SetGeometry sets the rectangle (or bounding box, if you want) of a widget.
