@@ -21,6 +21,8 @@ type Pixmap struct {
 
 	vao, vbo, ebo uint32
 	texture       *gl33.Texture
+
+	ready bool
 }
 
 // init is used to initialize pixmap's matrices and currently nothing more.
