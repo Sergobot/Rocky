@@ -31,7 +31,7 @@ type Texture struct {
 	unit uint32
 
 	// Is true if the texture is ready to be drawn
-	imageLoaded bool
+	ready bool
 
 	// Size of the texture
 	width, height int
@@ -39,11 +39,11 @@ type Texture struct {
 
 // LoadFromFile loads texture from an image file.
 func (t *Texture) LoadFromFile(file string) error {
-	if t.imageLoaded {
+	if t.ready {
 		gl.DeleteTextures(1, &t.texture)
 	}
 
-	t.imageLoaded = false
+	t.ready = false
 
 	// Load an image from file
 	imgFile, err := os.Open(file)
@@ -63,9 +63,6 @@ func (t *Texture) LoadFromFile(file string) error {
 
 	// Set texture's width and height equal to the image's ones
 	t.width, t.height = rgba.Bounds().Dx(), rgba.Bounds().Dy()
-
-	// Now image is loaded and we can use it as an OpenGL texture
-	t.imageLoaded = true
 
 	gl.GenTextures(1, &t.texture)
 
@@ -98,17 +95,20 @@ func (t *Texture) LoadFromFile(file string) error {
 	// It's a good practice to unbind once we are done
 	err = t.Unbind()
 
+	// Now image is loaded and initialized, so we can use it as an OpenGL texture
+	t.ready = true
+
 	return err
 }
 
 // Ready returns true if image is already loaded and the texture is ready to be used
 func (t *Texture) Ready() bool {
-	return t.imageLoaded
+	return t.ready
 }
 
 // Bind binds the texture for drawing.
 func (t *Texture) Bind() error {
-	if !t.imageLoaded {
+	if !t.ready {
 		return fmt.Errorf("Prevented binding a nonexistent texture")
 	}
 
@@ -119,7 +119,7 @@ func (t *Texture) Bind() error {
 
 // Unbind unbinds the texture. Use if drawing is finished.
 func (t *Texture) Unbind() error {
-	if !t.imageLoaded {
+	if !t.ready {
 		return fmt.Errorf("Prevented unbinding a nonexistent texture")
 	}
 
@@ -137,4 +137,10 @@ func (t *Texture) SetUnit(unit uint32) {
 // Unit returns texture unit the texture is using.
 func (t *Texture) Unit() uint32 {
 	return t.unit
+}
+
+// Version returns OpenGL version being used.
+func (t *Texture) Version() string {
+	// Version is defined in version.go
+	return Version
 }
