@@ -5,7 +5,7 @@ addons:
     - xorg-dev
 language: go
 go:
-- tip
+- 1.5
 - 1.6
 before_install:
 - cp .netrc ~
