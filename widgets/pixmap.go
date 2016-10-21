@@ -4,109 +4,45 @@ package widgets
 
 import (
 	g "github.com/Sergobot/Rocky/geometry"
-	opengl33 "github.com/Sergobot/Rocky/opengl/gl33"
-	widgets33 "github.com/Sergobot/Rocky/widgets/gl33"
+	"github.com/Sergobot/Rocky/opengl"
+	ogl33 "github.com/Sergobot/Rocky/opengl/gl33"
+	wgts33 "github.com/Sergobot/Rocky/widgets/gl33"
 )
 
-// Pixmap is a wrapper for all the implemented OpenGL_version_dependent Pixmaps.
-// These are located in gl** directories. For now there is only one version available,
-// 3.3, so we have only one Pixmap implementation inside.
-type Pixmap struct {
-	p33 *widgets33.Pixmap
+// Pixmap is one of the simplest widgets, intended to draw raster images
+// using OpenGL. It uses gl**.Texture struct for image loading and gl**.ShaderProgram
+// for drawing.
+type Pixmap interface {
+	// Look in widget.go to learn more about these basic methods
+	GetReady()
+	Draw()
+
+	SetSize(g.SizeF)
+	Size() g.SizeF
+
+	SetPos(g.PosF)
+	Pos() g.PosF
+
+	SetGeometry(g.RectF)
+	Geometry() g.RectF
+
+	// Pixmap-specific methods are going below
+
+	// LoadFromFile loads a texture from the given image
+	LoadFromFile(string)
+
+	// SetTexture sets texture to be used by Pixmap. Its purpose is to allow
+	// fast switching between textures.
+	// Note, we are passing here an interface, so there will be a pointer passed,
+	// not an actual value, so every Pixmap with the same texture pointer inside
+	// will have the same image.
+	SetTexture(opengl.Texture)
 }
 
-// NewPixmap returns an initialized Pixmap
-func NewPixmap() *Pixmap {
-	p := new(Pixmap)
-	p.Init()
-	return p
-}
-
-// Init initializes one of Pixmap members, according to separate OpenGL versions availability.
-// If there is no OpenGL context yet (or there is, but no Pixmap is able to use it),
-// this method does nothing and you will have to call it manually later, when a
-// supported OpenGL version is initialized.
-func (p *Pixmap) Init() {
-	if opengl33.Initialized() {
-		p.p33 = widgets33.NewPixmap()
+// NewPixmap returns a struct, which implements Pixmap interface defined above.
+func NewPixmap() Pixmap {
+	if ogl33.Initialized() {
+		return wgts33.NewPixmap()
 	}
-}
-
-// LoadFromFile loads a texture from the given image
-func (p *Pixmap) LoadFromFile(file string) {
-	if p.p33 != nil {
-		p.p33.LoadFromFile(file)
-	}
-}
-
-// SetTexture sets texture to be used by Pixmap. Its purpose is to allow
-// fast switching between textures.
-func (p *Pixmap) SetTexture(t *opengl33.Texture) {
-	if p.p33 != nil {
-		p.p33.SetTexture(t)
-	}
-}
-
-// GetReady initializes the Pixmap to be ready to Draw() function calls
-func (p *Pixmap) GetReady() {
-	if p.p33 != nil {
-		p.p33.GetReady()
-	}
-}
-
-// Draw draws Pixmap's contents to the screen
-func (p *Pixmap) Draw() {
-	if p.p33 != nil {
-		p.p33.Draw()
-	}
-}
-
-// SetSize sets the widget's size. You can call it manually or through SetGeometry
-func (p *Pixmap) SetSize(s g.SizeF) {
-	if p.p33 != nil {
-		p.p33.SetSize(s)
-	}
-}
-
-// Size returns current widget's size.
-func (p *Pixmap) Size() g.SizeF {
-	if p.p33 != nil {
-		return p.p33.Size()
-	}
-
-	return g.SizeF{}
-}
-
-// SetPos sets position of a widget. It's used in SetGeometry but you can call
-// it manually.
-func (p *Pixmap) SetPos(pos g.PosF) {
-	if p.p33 != nil {
-		p.p33.SetPos(pos)
-	}
-}
-
-// Pos returns current widget's position.
-func (p *Pixmap) Pos() g.PosF {
-	if p.p33 != nil {
-		return p.p33.Pos()
-	}
-
-	return g.PosF{}
-}
-
-// SetGeometry sets the rectangle (or bounding box, if you want) of a widget.
-// That means, widget will have same coordinates and size as a given rect.
-func (p *Pixmap) SetGeometry(r g.RectF) {
-	if p.p33 != nil {
-		p.p33.SetGeometry(r)
-	}
-}
-
-// Geometry returns current bounding box of a widget
-func (p *Pixmap) Geometry() g.RectF {
-	if p.p33 != nil {
-		return p.p33.Geometry()
-	}
-
-	return g.RectF{}
+	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 
+	"github.com/Sergobot/Rocky/opengl"
 	"github.com/Sergobot/Rocky/opengl/gl33"
 )
 
@@ -20,7 +21,7 @@ type Pixmap struct {
 	Widget
 
 	vao, vbo, ebo uint32
-	texture       *gl33.Texture
+	texture       opengl.Texture
 
 	ready bool
 }
@@ -46,7 +47,12 @@ func (p *Pixmap) LoadFromFile(file string) {
 
 // SetTexture sets texture to be used by Pixmap. Its purpose is to allow
 // fast switching between textures.
-func (p *Pixmap) SetTexture(tex *gl33.Texture) {
+func (p *Pixmap) SetTexture(tex opengl.Texture) {
+	if tex.Version() != gl33.Version {
+		log.Printf("Wrong texture version: %v expected, %v provided", gl33.Version, tex.Version())
+		return
+	}
+
 	if tex.Ready() {
 		p.texture = tex
 	} else {
